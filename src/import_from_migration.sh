@@ -1,3 +1,10 @@
+#!/bin/sh
+set -euf
+
+# Load secrets
+export PGUSER="${PGUSER:=$(cat /etc/secrets/database-credentials/user)}"
+export PGPASSWORD="${PGPASSWORD:=$(cat /etc/secrets/database-credentials/password)}"
+
 echo "MIGRATION_STATS_SCHEMA=$MIGRATION_STATS_SCHEMA"
 
 LATEST_SUCCESSFUL_RUN="$(psql --tuples-only --csv --command="SELECT created_at FROM $MIGRATION_STATS_SCHEMA.migration_stats ORDER BY created_at DESC LIMIT 1")"
