@@ -116,3 +116,30 @@ jobs:
         if: ${{ failure() && github.ref == 'refs/heads/main' }}
         with:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    concurrency: deploy-staging
+    needs:
+      - build-and-push-image
+    environment: staging
+    permissions:
+      id-token: write # Enable OIDC for gitsign
+    steps:
+      - uses: chainguard-dev/actions/setup-gitsign@98ff6d6ff2a7802d68c12d10fdfc98c5446b3f7b
+      - name: Deploy new images
+        uses: digitalservicebund/argocd-deploy@4fac1bb67c92ed168f6d9b22f8779ce241a9e412 # v1.0.0
+        with:
+          environment: staging
+          version: ${{ github.sha }}
+          deploying_repo: ris-norms-migration-import
+          infra_repo: ris-norms-infra
+          deploy_key: ${{ secrets.DEPLOY_KEY }}
+          app: ris-norms-staging
+          argocd_pipeline_password: ${{ secrets.ARGOCD_PIPELINE_PASSWORD }}
+          argocd_server: ${{ secrets.ARGOCD_SERVER }}
+      - name: Send status to Slack
+        uses: digitalservicebund/notify-on-failure-gha@814d0c4b2ad6a3443e89c991f8657b10126510bf # v1.5.0
+        if: ${{ failure() }}
+        with:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
