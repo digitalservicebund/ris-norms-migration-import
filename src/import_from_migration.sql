@@ -17,4 +17,5 @@ INSERT INTO :NORMS_SCHEMA.norms (xml) SELECT ldml_xml.content FROM :MIGRATION_SC
          WHERE
              migration_status = 'LEGALDOCML_TRANSFORMATION_SUCCEEDED'
             AND xpath_exists('//akn:act[@name="regelungstext"]', ldml_xml.content, '{{akn,http://Inhaltsdaten.LegalDocML.de/1.7/}}')
-            AND migration_error.id IS NULL;
+            AND migration_error.id IS NULL
+    ON CONFLICT DO NOTHING;
