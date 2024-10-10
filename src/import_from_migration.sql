@@ -1,5 +1,5 @@
-DELETE FROM norms.announcements;
-DELETE FROM norms.norms WHERE
+DELETE FROM :NORMS_SCHEMA.announcements;
+DELETE FROM :NORMS_SCHEMA.norms WHERE
     -- keep our seeds, for now
     eli_manifestation NOT IN (
         'eli/bund/bgbl-1/1964/s593/1964-08-05/1/deu/1964-08-05/regelungstext-1.xml',
