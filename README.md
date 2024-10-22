@@ -61,10 +61,10 @@ If you need to push a new container image to the registry manually there are two
 **Via built-in Gradle task:**
 
 ```bash
-export CONTAINER_REGISTRY=ghcr.io
-export CONTAINER_IMAGE_NAME=digitalservicebund/ris-norms-migration-import
-export CONTAINER_IMAGE_VERSION="$(git log -1 --format='%H')"
-CONTAINER_REGISTRY_USER=[github-user] CONTAINER_REGISTRY_PASSWORD=[github-token] ./gradlew bootBuildImage --publishImage
+IMAGE_VERSION="$(git log -1 --format='%H')"
+docker build -t ghcr.io/digitalservicebund/ris-norms-migration-import:$IMAGE_VERSION .
+echo [github-token] | docker login ghcr.io -u [github-user] --password-stdin
+docker push ghcr.io/digitalservicebund/ris-norms-migration-import:$IMAGE_VERSION
 ```
 
 **Note:** Make sure you're using a GitHub token with the necessary `write:packages` scope for this to work.
@@ -93,7 +93,7 @@ brew install aquasecurity/trivy/trivy
 ```
 
 ```bash
-./gradlew bootBuildImage
+docker build -t ghcr.io/digitalservicebund/ris-norms-migration-import:latest .
 trivy image --severity HIGH,CRITICAL ghcr.io/digitalservicebund/ris-norms-migration-import:latest
 ```
 
