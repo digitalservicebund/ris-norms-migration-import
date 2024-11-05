@@ -1,3 +1,6 @@
+DELETE FROM :NORMS_SCHEMA.release_norms;
+DELETE FROM :NORMS_SCHEMA.announcement_releases;
+DELETE FROM :NORMS_SCHEMA.releases;
 DELETE FROM :NORMS_SCHEMA.announcements;
 DELETE FROM :NORMS_SCHEMA.norms WHERE
     -- keep our seeds, for now
