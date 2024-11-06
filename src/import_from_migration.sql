@@ -16,7 +16,7 @@ DELETE FROM :NORMS_SCHEMA.norms WHERE
 -- Insert into norms table and count the rows inserted using CTE
 WITH inserted_rows AS (
 INSERT INTO :NORMS_SCHEMA.norms (xml, publish_state)
-SELECT ldml_xml.content, 'QUEUED_FOR_PUBLISH'::norm_publish_state
+SELECT ldml_xml.content, 'QUEUED_FOR_PUBLISH'
 FROM :MIGRATION_SCHEMA.migration_record
     INNER JOIN :MIGRATION_SCHEMA.ldml ldml ON migration_record.id = ldml.migration_record_id
     INNER JOIN :MIGRATION_SCHEMA.ldml_xml ldml_xml ON ldml.id = ldml_xml.ldml_id
