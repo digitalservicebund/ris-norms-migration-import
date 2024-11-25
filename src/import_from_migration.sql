@@ -26,7 +26,7 @@ FROM :MIGRATION_SCHEMA.migration_record
     AND migration_error.description NOT LIKE '%SCH-00200-005%'
 WHERE
     migration_status IN ('LEGALDOCML_TRANSFORMATION_SUCCEEDED', 'LEGALDOCML_VALIDATION_FAILED')
-  AND xpath_exists('//akn:act[@name="regelungstext"]', ldml_xml.content, '{{akn,http://Inhaltsdaten.LegalDocML.de/1.7/}}')
+  AND xpath_exists('//akn:act[@name="regelungstext"]', ldml_xml.content, '{{akn,http://Inhaltsdaten.LegalDocML.de/1.7.1/}}')
   AND migration_error.id IS NULL
   ON CONFLICT DO NOTHING -- ensures duplicates are ignored
     RETURNING *
