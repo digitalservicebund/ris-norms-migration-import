@@ -2,9 +2,9 @@ DELETE FROM :NORMS_SCHEMA.release_norms;
 DELETE FROM :NORMS_SCHEMA.announcement_releases;
 DELETE FROM :NORMS_SCHEMA.releases;
 DELETE FROM :NORMS_SCHEMA.announcements;
-DELETE FROM :NORMS_SCHEMA.norms WHERE
+DELETE FROM :NORMS_SCHEMA.dokumente WHERE
     -- keep our seeds, for now
-    eli_manifestation NOT IN (
+    eli_dokument_manifestation NOT IN (
         'eli/bund/bgbl-1/1964/s593/1964-08-05/1/deu/1964-08-05/regelungstext-1.xml',
         'eli/bund/bgbl-1/1990/s2954/2022-12-19/1/deu/1990-12-20/regelungstext-1.xml',
         'eli/bund/bgbl-1/1000/1/1000-01-01/1/deu/1000-01-01/regelungstext-1.xml',
@@ -15,7 +15,7 @@ DELETE FROM :NORMS_SCHEMA.norms WHERE
 
 -- Insert into norms table and count the rows inserted using CTE
 WITH inserted_rows AS (
-INSERT INTO :NORMS_SCHEMA.norms (xml, publish_state)
+INSERT INTO :NORMS_SCHEMA.dokumente (xml, publish_state)
 SELECT ldml_xml.content, 'QUEUED_FOR_PUBLISH'
 FROM :MIGRATION_SCHEMA.migration_record
     INNER JOIN :MIGRATION_SCHEMA.ldml ldml ON migration_record.id = ldml.migration_record_id
