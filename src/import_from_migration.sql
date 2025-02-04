@@ -12,7 +12,7 @@ DELETE FROM :NORMS_SCHEMA.dokumente WHERE
         'eli/bund/bgbl-1/1001/1/1001-01-01/1/deu/1001-01-01/regelungstext-1.xml',
         'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu/1002-01-01/regelungstext-1.xml'
     );
-DELETE FROM norms.norm_manifestation WHERE
+DELETE FROM :NORMS_SCHEMA.norm_manifestation WHERE
     -- keep our seeds, for now
     eli_norm_manifestation NOT IN (
         'eli/bund/bgbl-1/1964/s593/1964-08-05/1/deu/1964-08-05',
@@ -22,7 +22,7 @@ DELETE FROM norms.norm_manifestation WHERE
         'eli/bund/bgbl-1/1001/1/1001-01-01/1/deu/1001-01-01',
         'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu/1002-01-01'
         );
-DELETE FROM norms.norm_expression WHERE
+DELETE FROM :NORMS_SCHEMA.norm_expression WHERE
     -- keep our seeds, for now
     eli_norm_expression NOT IN (
         'eli/bund/bgbl-1/1964/s593/1964-08-05/1/deu',
@@ -50,15 +50,20 @@ WITH inserted_dokumente AS (
         AND migration_error.id IS NULL
     ON CONFLICT DO NOTHING -- ensures duplicates are ignored
     RETURNING eli_norm_manifestation
-),
+    )
+-- Create and populate temp table using the CTE from the insert, needed because of two separate statements + subquery in the 2nd one
+SELECT eli_norm_manifestation INTO TEMP TABLE inserted_docs FROM inserted_dokumente;
+
 -- Log the number of inserted rows
-insert_log AS (
-    INSERT INTO :NORMS_SCHEMA.migration_log (size)
-    SELECT COUNT(*) FROM inserted_dokumente
-)
--- Update publish_state in norm_manifestation only for entries related to inserted dokumente
+INSERT INTO :NORMS_SCHEMA.migration_log (size)
+SELECT COUNT(*) FROM inserted_docs;
+
+-- Update publish_state in norm_manifestation only for entries coming from the inserted dokumente
 UPDATE :NORMS_SCHEMA.norm_manifestation nm
 SET publish_state = 'QUEUED_FOR_PUBLISH'
-WHERE nm.eli_norm_manifestation IN (SELECT eli_norm_manifestation FROM inserted_dokumente)
+WHERE nm.eli_norm_manifestation IN (SELECT eli_norm_manifestation FROM inserted_docs)
   AND nm.publish_state = 'UNPUBLISHED';
+
+-- Drop the temporary table (although they are automatically dropped at end of session, it is good practice)
+DROP TABLE inserted_docs;
 
