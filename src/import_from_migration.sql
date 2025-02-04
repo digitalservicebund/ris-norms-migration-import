@@ -50,16 +50,15 @@ WITH inserted_dokumente AS (
         AND migration_error.id IS NULL
     ON CONFLICT DO NOTHING -- ensures duplicates are ignored
     RETURNING eli_norm_manifestation
-)
-
+),
 -- Log the number of inserted rows
-INSERT INTO :NORMS_SCHEMA.migration_log (size)
-SELECT COUNT(*) FROM inserted_dokumente;
-
+insert_log AS (
+    INSERT INTO :NORMS_SCHEMA.migration_log (size)
+    SELECT COUNT(*) FROM inserted_dokumente
+)
 -- Update publish_state in norm_manifestation only for entries related to inserted dokumente
 UPDATE :NORMS_SCHEMA.norm_manifestation nm
 SET publish_state = 'QUEUED_FOR_PUBLISH'
-FROM inserted_dokumente id
-WHERE nm.eli_norm_manifestation = id.eli_dokument_manifestation
+WHERE nm.eli_norm_manifestation IN (SELECT eli_norm_manifestation FROM inserted_dokumente)
   AND nm.publish_state = 'UNPUBLISHED';
 
