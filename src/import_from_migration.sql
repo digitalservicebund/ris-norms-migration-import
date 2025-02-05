@@ -46,7 +46,7 @@ WITH inserted_dokumente AS (
             AND migration_error.description NOT LIKE '%SCH-00200-005%'
     WHERE
         migration_status IN ('LEGALDOCML_TRANSFORMATION_SUCCEEDED', 'LEGALDOCML_VALIDATION_FAILED')
-        AND ldml_xml.type = 'regelungstext'
+        AND ldml_xml.type IN ('regelungstext', 'offenestruktur')
         AND migration_error.id IS NULL
     ON CONFLICT DO NOTHING -- ensures duplicates are ignored
     RETURNING eli_norm_manifestation
