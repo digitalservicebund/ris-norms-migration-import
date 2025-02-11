@@ -2,16 +2,22 @@ DELETE FROM :NORMS_SCHEMA.release_norms;
 DELETE FROM :NORMS_SCHEMA.announcement_releases;
 DELETE FROM :NORMS_SCHEMA.releases;
 DELETE FROM :NORMS_SCHEMA.announcements;
-DELETE FROM :NORMS_SCHEMA.dokumente WHERE
-    -- keep our seeds, for now
-    eli_dokument_manifestation NOT IN (
+-- for now, keep our seeds and keep also those documents that are already QUEUED_FOR_PUBLISHED (published through UI)
+DELETE FROM :NORMS_SCHEMA.dokumente d WHERE
+    d.eli_dokument_manifestation NOT IN (
         'eli/bund/bgbl-1/1964/s593/1964-08-05/1/deu/1964-08-05/regelungstext-1.xml',
         'eli/bund/bgbl-1/1990/s2954/2022-12-19/1/deu/1990-12-20/regelungstext-1.xml',
         'eli/bund/bgbl-1/1000/1/1000-01-01/1/deu/1000-01-01/regelungstext-1.xml',
         'eli/bund/bgbl-1/2009/s3366/2023-12-23/1/deu/2023-12-23/regelungstext-1.xml',
         'eli/bund/bgbl-1/1001/1/1001-01-01/1/deu/1001-01-01/regelungstext-1.xml',
         'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu/1002-01-01/regelungstext-1.xml'
-    );
+    )
+    -- using not exists because it stops when a match is found
+    AND NOT EXISTS (SELECT 1
+                    FROM :NORMS_SCHEMA.norm_manifestation nm
+                    WHERE nm.eli_norm_manifestation = d.eli_norm_manifestation
+                        AND nm.publish_state = 'QUEUED_FOR_PUBLISH');
+
 DELETE FROM :NORMS_SCHEMA.norm_manifestation WHERE
     -- keep our seeds, for now
     eli_norm_manifestation NOT IN (
@@ -21,17 +27,14 @@ DELETE FROM :NORMS_SCHEMA.norm_manifestation WHERE
         'eli/bund/bgbl-1/2009/s3366/2023-12-23/1/deu/2023-12-23',
         'eli/bund/bgbl-1/1001/1/1001-01-01/1/deu/1001-01-01',
         'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu/1002-01-01'
-        );
-DELETE FROM :NORMS_SCHEMA.norm_expression WHERE
-    -- keep our seeds, for now
-    eli_norm_expression NOT IN (
-        'eli/bund/bgbl-1/1964/s593/1964-08-05/1/deu',
-        'eli/bund/bgbl-1/1990/s2954/2022-12-19/1/deu',
-        'eli/bund/bgbl-1/1000/1/1000-01-01/1/deu',
-        'eli/bund/bgbl-1/2009/s3366/2023-12-23/1/deu',
-        'eli/bund/bgbl-1/1001/1/1001-01-01/1/deu',
-        'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu'
-        );
+        )
+    AND publish_state != 'QUEUED_FOR_PUBLISH';
+
+DELETE FROM :NORMS_SCHEMA.norm_expression ne
+WHERE NOT EXISTS (SELECT 1
+                  FROM :NORMS_SCHEMA.norm_manifestation nm
+                  WHERE nm.eli_norm_expression = ne.eli_norm_expression);
+
 
 -- Insert into dokumente table and track inserted rows
 WITH inserted_dokumente AS (
