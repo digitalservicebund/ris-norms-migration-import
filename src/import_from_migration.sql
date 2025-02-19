@@ -40,12 +40,10 @@ WITH inserted_dokumente AS (
     FROM :MIGRATION_SCHEMA.migration_record
         INNER JOIN :MIGRATION_SCHEMA.ldml ldml ON migration_record.id = ldml.migration_record_id
         INNER JOIN :MIGRATION_SCHEMA.ldml_xml ldml_xml ON ldml.id = ldml_xml.ldml_id
-        LEFT OUTER JOIN :MIGRATION_SCHEMA.migration_error migration_error ON
-            migration_record.id = migration_error.migration_record_id
     WHERE
-        migration_status IN ('LEGALDOCML_TRANSFORMATION_SUCCEEDED', 'LEGALDOCML_VALIDATION_FAILED')
+        migration_status IN ('LEGALDOCML_TRANSFORMATION_SUCCEEDED')
+        AND validation_status IN ('LEGALDOCML_SCHEMATRON_VALIDATION_SUCCESSFUL')
         AND ldml_xml.type IN ('regelungstext', 'offenestruktur')
-        AND migration_error.id IS NULL
     ON CONFLICT DO NOTHING -- ensures duplicates are ignored
     RETURNING eli_norm_manifestation
     )
