@@ -42,8 +42,6 @@ WITH inserted_dokumente AS (
         INNER JOIN :MIGRATION_SCHEMA.ldml_xml ldml_xml ON ldml.id = ldml_xml.ldml_id
         LEFT OUTER JOIN :MIGRATION_SCHEMA.migration_error migration_error ON
             migration_record.id = migration_error.migration_record_id
-            AND migration_error.description NOT LIKE '%SCH-00210-005%'
-            AND migration_error.description NOT LIKE '%SCH-00200-005%'
     WHERE
         migration_status IN ('LEGALDOCML_TRANSFORMATION_SUCCEEDED', 'LEGALDOCML_VALIDATION_FAILED')
         AND ldml_xml.type IN ('regelungstext', 'offenestruktur')
