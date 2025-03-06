@@ -36,12 +36,10 @@ DELETE FROM :NORMS_SCHEMA.norm_expression WHERE
 WITH inserted_dokumente AS (
     INSERT INTO :NORMS_SCHEMA.dokumente (xml)
     SELECT ldml_xml.content
-    FROM :MIGRATION_SCHEMA.migration_record
-        INNER JOIN :MIGRATION_SCHEMA.ldml ldml ON migration_record.id = ldml.migration_record_id
-        INNER JOIN :MIGRATION_SCHEMA.ldml_xml ldml_xml ON ldml.id = ldml_xml.ldml_id
-    WHERE
-        migration_status = 'LEGALDOCML_TRANSFORMATION_SUCCEEDED'
-        AND ldml_xml.type IN ('regelungstext', 'offenestruktur')
+    FROM :MIGRATION_SCHEMA.ldml_xml ldml_xml
+        LEFT JOIN :MIGRATION_SCHEMA.ldml_error ldml_error ON ldml_xml.id = ldml_error.ldml_xml_id AND ldml_error.type != 'schematron warning'
+    WHERE ldml_xml.type IN ('regelungstext', 'offenestruktur')
+    AND ldml_error.id IS NULL
     ON CONFLICT DO NOTHING -- ensures duplicates are ignored
     RETURNING eli_norm_manifestation
     )
