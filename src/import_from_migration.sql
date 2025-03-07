@@ -4,7 +4,6 @@ DELETE FROM :NORMS_SCHEMA.announcements;
 DELETE FROM :NORMS_SCHEMA.dokumente WHERE
     -- keep our seeds, for now
     eli_dokument_manifestation NOT IN (
-        'eli/bund/bgbl-1/1964/s593/1964-08-05/1/deu/1964-08-05/regelungstext-1.xml',
         'eli/bund/bgbl-1/1990/s2954/2022-12-19/1/deu/1990-12-20/regelungstext-1.xml',
         'eli/bund/bgbl-1/1000/1/1000-01-01/1/deu/1000-01-01/regelungstext-1.xml',
         'eli/bund/bgbl-1/2009/s3366/2023-12-23/1/deu/2023-12-23/regelungstext-1.xml',
@@ -14,7 +13,6 @@ DELETE FROM :NORMS_SCHEMA.dokumente WHERE
 DELETE FROM :NORMS_SCHEMA.norm_manifestation WHERE
     -- keep our seeds, for now
     eli_norm_manifestation NOT IN (
-        'eli/bund/bgbl-1/1964/s593/1964-08-05/1/deu/1964-08-05',
         'eli/bund/bgbl-1/1990/s2954/2022-12-19/1/deu/1990-12-20',
         'eli/bund/bgbl-1/1000/1/1000-01-01/1/deu/1000-01-01',
         'eli/bund/bgbl-1/2009/s3366/2023-12-23/1/deu/2023-12-23',
@@ -24,7 +22,6 @@ DELETE FROM :NORMS_SCHEMA.norm_manifestation WHERE
 DELETE FROM :NORMS_SCHEMA.norm_expression WHERE
     -- keep our seeds, for now
     eli_norm_expression NOT IN (
-        'eli/bund/bgbl-1/1964/s593/1964-08-05/1/deu',
         'eli/bund/bgbl-1/1990/s2954/2022-12-19/1/deu',
         'eli/bund/bgbl-1/1000/1/1000-01-01/1/deu',
         'eli/bund/bgbl-1/2009/s3366/2023-12-23/1/deu',
