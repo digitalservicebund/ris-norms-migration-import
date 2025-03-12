@@ -34,20 +34,24 @@ WITH inserted_dokumente AS (
     INSERT INTO :NORMS_SCHEMA.dokumente (xml)
     SELECT ldml_xml.content
     FROM :MIGRATION_SCHEMA.ldml_xml ldml_xml
-        JOIN :MIGRATION_SCHEMA.ldml_version ldml_version ON ldml_xml.ldml_version_id = ldml_version.id
+    JOIN :MIGRATION_SCHEMA.ldml_version ldml_version ON ldml_xml.ldml_version_id = ldml_version.id
+    WHERE ldml_xml.id IN (
+        SELECT ldml_xml.id
+        FROM :MIGRATION_SCHEMA.ldml_xml ldml_xml
         LEFT JOIN :MIGRATION_SCHEMA.ldml_error ldml_error ON ldml_xml.id = ldml_error.ldml_xml_id
-    WHERE (ldml_error.id IS NULL OR ldml_error.type = 'warning')
-        AND ldml_xml.type IN ('regelungstext', 'offenestruktur')
-        -- We only want those expression "bundles" with all files valid (regelungstext + offeneStrukturen)
-        AND ldml_version.id NOT IN (
-            SELECT DISTINCT ldml_xml.ldml_version_id
-            FROM :MIGRATION_SCHEMA.ldml_xml ldml_xml
-                JOIN :MIGRATION_SCHEMA.ldml_error ldml_error ON ldml_xml.id = ldml_error.ldml_xml_id
-            WHERE ldml_error.type != 'warning'
-            )
+        WHERE (ldml_error.id IS NULL OR ldml_error.type = 'schematron warning')
+        GROUP BY ldml_xml.id
+    )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM :MIGRATION_SCHEMA.ldml_xml sub_ldml_xml
+        JOIN :MIGRATION_SCHEMA.ldml_error sub_error ON sub_ldml_xml.id = sub_error.ldml_xml_id
+        WHERE sub_ldml_xml.ldml_version_id = ldml_version.id
+        AND sub_error.type != 'schematron warning'
+    )
     ON CONFLICT DO NOTHING -- ensures duplicates are ignored
     RETURNING eli_norm_manifestation
-    )
+)
 -- Create and populate temp table using the CTE from the insert, needed because of two separate statements + subquery in the 2nd one
 SELECT eli_norm_manifestation INTO TEMP TABLE inserted_docs FROM inserted_dokumente;
 
