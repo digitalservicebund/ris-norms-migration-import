@@ -1,6 +1,7 @@
 DELETE FROM :NORMS_SCHEMA.release_norms;
 DELETE FROM :NORMS_SCHEMA.releases;
 DELETE FROM :NORMS_SCHEMA.announcements;
+DELETE FROM :NORMS_SCHEMA.binary_files;
 DELETE FROM :NORMS_SCHEMA.dokumente WHERE
     -- keep our seeds, for now
     eli_dokument_manifestation NOT IN (
@@ -54,6 +55,17 @@ WITH inserted_dokumente AS (
 )
 -- Create and populate temp table using the CTE from the insert, needed because of two separate statements + subquery in the 2nd one
 SELECT eli_norm_manifestation INTO TEMP TABLE inserted_docs FROM inserted_dokumente;
+
+-- Import Binary files
+-- This only imports the binary files for norms that are imported in the previous steps: Other binary files create a conflict during the import (which is then ignored).
+-- There is a foreign-key restraint on the eli_norm_manifestation column (that is automatically generated from eli_dokument_manifestation) to
+-- only allow elis for which an entry in the norm_manifestation table exists which is automatically populated when inserting dokumente.
+INSERT INTO :NORMS_SCHEMA.binary_files (content, eli_dokument_manifestation)
+SELECT content, (ldml_version.manifestation_eli || '/' || attachment.short_filename)
+FROM :MIGRATION_SCHEMA.ldml_version ldml_version
+    JOIN :MIGRATION_SCHEMA.ldml_version_attachment ldml_version_attachment ON ldml_version.id = ldml_version_attachment.ldml_version_id
+    JOIN :MIGRATION_SCHEMA.attachment attachment ON ldml_version_attachment.attachment_id = attachment.id
+    ON CONFLICT DO NOTHING;
 
 -- Log the number of inserted rows
 INSERT INTO :NORMS_SCHEMA.migration_log (size)
