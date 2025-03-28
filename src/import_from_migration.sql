@@ -63,6 +63,7 @@ FROM :MIGRATION_SCHEMA.ldml_version ldml_version
     JOIN :MIGRATION_SCHEMA.ldml_version_attachment ldml_version_attachment ON ldml_version.id = ldml_version_attachment.ldml_version_id
     JOIN :MIGRATION_SCHEMA.attachment attachment ON ldml_version_attachment.attachment_id = attachment.id
     WHERE ldml_version.manifestation_eli IN (SELECT eli_norm_manifestation FROM inserted_docs)
+        AND attachment.short_filename != ''
     ON CONFLICT DO NOTHING;
 
 -- Log the number of inserted rows
