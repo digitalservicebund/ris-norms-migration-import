@@ -15,20 +15,21 @@ LATEST_NORMS_LOG=$(psql --tuples-only --csv --command="SELECT MAX(created_at AT 
 # Get date of last migration (it is already UTC) - trimming in case the --tuples-only --csv includes an unexpected newline character
 LATEST_STATS=$(psql --tuples-only --csv --command="SELECT MAX(created_at) FROM ${MIGRATION_STATS_SCHEMA}.migration_stats" | tr -d '[:space:]')
 
-# Optional: Fallbacks in case the queries return nothing (to avoid issues in comparison)
-: "${LATEST_NORMS_LOG:=0000-01-01 00:00:00}"
-: "${LATEST_STATS:=0000-01-01 00:00:00}"
-
 echo "JOBS_IN_PROGRESS=$JOBS_IN_PROGRESS"
 echo "LATEST_NORMS_LOG=$LATEST_NORMS_LOG"
 echo "LATEST_STATS=$LATEST_STATS"
 
-# Only if no jobs are in progress AND the latest migration log is older than the latest migration stats (lexicographic comparison using string UTC representations)
-if [ "$JOBS_IN_PROGRESS" -eq 0 ] && [ "$LATEST_NORMS_LOG" \< "$LATEST_STATS" ]; then
-  echo "No jobs in progress. Running norms migration job..."
-  echo "NORMS_SCHEMA=$NORMS_SCHEMA"
-  echo "MIGRATION_SCHEMA=$MIGRATION_SCHEMA"
-  psql --echo-all --variable=NORMS_SCHEMA=$NORMS_SCHEMA --variable=MIGRATION_SCHEMA=$MIGRATION_SCHEMA --file=./import_from_migration.sql
+# Only proceed if migration_stats is present
+if [ -n "$LATEST_STATS" ]; then
+  # If no jobs in progress AND (no migration_log OR migration_log is older than migration_stats)
+  if [ "$JOBS_IN_PROGRESS" -eq 0 ] && { [ -z "$LATEST_NORMS_LOG" ] || [ "$LATEST_NORMS_LOG" \< "$LATEST_STATS" ]; }; then
+    echo "No jobs in progress and migration needed. Running norms migration job..."
+    echo "NORMS_SCHEMA=$NORMS_SCHEMA"
+    echo "MIGRATION_SCHEMA=$MIGRATION_SCHEMA"
+    psql --echo-all --variable=NORMS_SCHEMA=$NORMS_SCHEMA --variable=MIGRATION_SCHEMA=$MIGRATION_SCHEMA --file=./import_from_migration.sql
+  else
+    echo "Migration not needed or jobs in progress. Skipping."
+  fi
 else
-  echo "Jobs are still in progress. Skipping running norms migration job."
+  echo "No migration stats found. Skipping execution."
 fi
