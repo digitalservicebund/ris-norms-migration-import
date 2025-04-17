@@ -60,8 +60,8 @@ SELECT eli_norm_manifestation INTO TEMP TABLE inserted_docs FROM inserted_dokume
 INSERT INTO :NORMS_SCHEMA.binary_files (content, eli_dokument_manifestation)
 SELECT content, (ldml_version.manifestation_eli || '/' || attachment.short_filename)
 FROM :MIGRATION_SCHEMA.ldml_version ldml_version
-    JOIN :MIGRATION_SCHEMA.ldml_version_attachment ldml_version_attachment ON ldml_version.id = ldml_version_attachment.ldml_version_id
-    JOIN :MIGRATION_SCHEMA.attachment attachment ON ldml_version_attachment.attachment_id = attachment.id
+    JOIN :MIGRATION_SCHEMA.ldml_version_norm_xml ldml_version_norm_xml ON ldml_version.id = ldml_version_norm_xml.ldml_version_id
+    JOIN :MIGRATION_SCHEMA.attachment attachment ON ldml_version_norm_xml.norm_xml_id = attachment.norm_xml_id
     WHERE ldml_version.manifestation_eli IN (SELECT eli_norm_manifestation FROM inserted_docs)
         AND attachment.short_filename != ''
     ON CONFLICT DO NOTHING;
