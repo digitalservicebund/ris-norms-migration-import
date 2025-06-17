@@ -9,7 +9,19 @@ DELETE FROM :NORMS_SCHEMA.dokumente WHERE
         'eli/bund/bgbl-1/1000/1/1000-01-01/1/deu/1000-01-01/regelungstext-1.xml',
         'eli/bund/bgbl-1/2009/s3366/2023-12-23/1/deu/2023-12-23/regelungstext-1.xml',
         'eli/bund/bgbl-1/1001/1/1001-01-01/1/deu/1001-01-01/regelungstext-1.xml',
-        'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu/1002-01-01/regelungstext-1.xml'
+        'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu/1002-01-01/regelungstext-1.xml',
+    
+        'eli/bund/bgbl-1/1990/s2954/2022-12-19/1/deu/1990-12-20/regelungstext-verkuendung-1.xml',
+        'eli/bund/bgbl-1/1000/1/1000-01-01/1/deu/1000-01-01/regelungstext-verkuendung-1.xml',
+        'eli/bund/bgbl-1/2009/s3366/2023-12-23/1/deu/2023-12-23/regelungstext-1-verkuendung.xml',
+        'eli/bund/bgbl-1/1001/1/1001-01-01/1/deu/1001-01-01/regelungstext-verkuendung-1.xml',
+        'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu/1002-01-01/regelungstext-verkuendung-1.xml',
+
+        'eli/bund/bgbl-1/1990/s2954/2022-12-19/1/deu/1990-12-20/rechtsetzungsdokument-1.xml',
+        'eli/bund/bgbl-1/1000/1/1000-01-01/1/deu/1000-01-01/rechtsetzungsdokument-1.xml',
+        'eli/bund/bgbl-1/2009/s3366/2023-12-23/1/deu/2023-12-23/rechtsetzungsdokument-1.xml',
+        'eli/bund/bgbl-1/1001/1/1001-01-01/1/deu/1001-01-01/rechtsetzungsdokument-1.xml',
+        'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu/1002-01-01/rechtsetzungsdokument-1.xml'
     );
 DELETE FROM :NORMS_SCHEMA.norm_manifestation WHERE
     -- keep our seeds, for now
