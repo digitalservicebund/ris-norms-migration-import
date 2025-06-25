@@ -67,18 +67,26 @@ WITH inserted_dokumente AS (
 SELECT eli_norm_manifestation INTO TEMP TABLE inserted_docs FROM inserted_dokumente;
 
 -- Import Binary files
-INSERT INTO :NORMS_SCHEMA.binary_files (content, eli_dokument_manifestation)
+WITH inserted_binary_files AS (
+INSERT
+INTO :NORMS_SCHEMA.binary_files (content, eli_dokument_manifestation)
 SELECT content, (ldml_version.manifestation_eli || '/' || attachment.short_filename)
 FROM :MIGRATION_SCHEMA.ldml_version ldml_version
-    JOIN :MIGRATION_SCHEMA.ldml_version_norm_xml ldml_version_norm_xml ON ldml_version.id = ldml_version_norm_xml.ldml_version_id
+    JOIN :MIGRATION_SCHEMA.ldml_version_norm_xml ldml_version_norm_xml
+ON ldml_version.id = ldml_version_norm_xml.ldml_version_id
     JOIN :MIGRATION_SCHEMA.attachment attachment ON ldml_version_norm_xml.norm_xml_id = attachment.norm_xml_id
-    WHERE ldml_version.manifestation_eli IN (SELECT eli_norm_manifestation FROM inserted_docs)
-        AND attachment.short_filename != ''
-    ON CONFLICT DO NOTHING;
+WHERE ldml_version.manifestation_eli IN (SELECT eli_norm_manifestation FROM inserted_docs)
+  AND attachment.short_filename != ''
+ON CONFLICT DO NOTHING
+    RETURNING 1
+);
 
--- Log the number of inserted rows
-INSERT INTO :NORMS_SCHEMA.migration_log (size)
-SELECT COUNT(*) FROM inserted_docs;
+
+-- Log the number of migrated dokumente and binary files
+INSERT INTO :NORMS_SCHEMA.migration_log (xml_size, binary_size)
+SELECT
+    (SELECT COUNT(*) FROM inserted_docs),
+    (SELECT COUNT(*) FROM inserted_binary_files);
 
 -- Update publish_state in norm_manifestation only for entries coming from the inserted dokumente
 UPDATE :NORMS_SCHEMA.norm_manifestation nm
@@ -86,6 +94,5 @@ SET publish_state = 'QUEUED_FOR_PUBLISH'
 WHERE nm.eli_norm_manifestation IN (SELECT eli_norm_manifestation FROM inserted_docs)
   AND nm.publish_state = 'UNPUBLISHED';
 
--- Drop the temporary table (although they are automatically dropped at end of session, it is good practice)
+-- Drop the created temporary table (although they are automatically dropped at end of session, it is good practice)
 DROP TABLE inserted_docs;
-
