@@ -79,8 +79,7 @@ WHERE ldml_version.manifestation_eli IN (SELECT eli_norm_manifestation FROM inse
   AND attachment.short_filename != ''
 ON CONFLICT DO NOTHING
     RETURNING 1
-);
-
+)
 
 -- Log the number of migrated dokumente and binary files
 INSERT INTO :NORMS_SCHEMA.migration_log (xml_size, binary_size)
