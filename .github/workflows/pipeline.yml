@@ -144,13 +144,14 @@ jobs:
     steps:
       - uses: chainguard-dev/actions/setup-gitsign@98ff6d6ff2a7802d68c12d10fdfc98c5446b3f7b
       - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@4fac1bb67c92ed168f6d9b22f8779ce241a9e412 # v1.0.0
+        uses: digitalservicebund/argocd-deploy@faa88406a1d6afa918aad127b19735c6e54d7fb1 # v1.0.0
         with:
           environment: staging
           version: ${{ github.sha }}
           deploying_repo: ris-norms-migration-import
           infra_repo: ris-norms-infra
-          deploy_key: ${{ secrets.DEPLOY_KEY }}
+          github_app_private_key: ${{ secrets.GITOPS_NEURIS_APP_PRIVATE_KEY }}
+          github_app_id: ${{ secrets.GITOPS_NEURIS_APP_ID }}
           app: ris-norms-staging
           argocd_pipeline_password: ${{ secrets.ARGOCD_PIPELINE_PASSWORD }}
           argocd_server: ${{ secrets.ARGOCD_SERVER }}
@@ -171,13 +172,14 @@ jobs:
     steps:
       - uses: chainguard-dev/actions/setup-gitsign@98ff6d6ff2a7802d68c12d10fdfc98c5446b3f7b
       - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@4fac1bb67c92ed168f6d9b22f8779ce241a9e412 # v1.0.0
+        uses: digitalservicebund/argocd-deploy@faa88406a1d6afa918aad127b19735c6e54d7fb1 # v1.0.0
         with:
           environment: uat
           version: ${{ github.sha }}
           deploying_repo: ris-norms-migration-import
           infra_repo: ris-norms-infra
-          deploy_key: ${{ secrets.DEPLOY_KEY }}
+          github_app_private_key: ${{ secrets.GITOPS_NEURIS_APP_PRIVATE_KEY }}
+          github_app_id: ${{ secrets.GITOPS_NEURIS_APP_ID }}
           app: ris-norms-uat
           argocd_pipeline_password: ${{ secrets.ARGOCD_PIPELINE_PASSWORD }}
           argocd_server: ${{ secrets.ARGOCD_SERVER }}
@@ -198,13 +200,14 @@ jobs:
     steps:
       - uses: chainguard-dev/actions/setup-gitsign@98ff6d6ff2a7802d68c12d10fdfc98c5446b3f7b
       - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@4fac1bb67c92ed168f6d9b22f8779ce241a9e412 # v1.0.0
+        uses: digitalservicebund/argocd-deploy@faa88406a1d6afa918aad127b19735c6e54d7fb1 # v1.0.0
         with:
           environment: production
           version: ${{ github.sha }}
           deploying_repo: ris-norms-migration-import
           infra_repo: ris-norms-infra
-          deploy_key: ${{ secrets.DEPLOY_KEY }}
+          github_app_private_key: ${{ secrets.GITOPS_NEURIS_APP_PRIVATE_KEY }}
+          github_app_id: ${{ secrets.GITOPS_NEURIS_APP_ID }}
           app: ris-norms-production
           argocd_pipeline_password: ${{ secrets.ARGOCD_PIPELINE_PASSWORD }}
           argocd_server: ${{ secrets.ARGOCD_SERVER }}
