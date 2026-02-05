@@ -3,7 +3,9 @@ set -euf
 
 # Load secrets
 export PGUSER="${PGUSER:=$(cat /etc/secrets/database-credentials/user)}"
+export PGUSER="${PGUSER:=$(cat /etc/secrets/database-credentials/username)}"
 export PGPASSWORD="${PGPASSWORD:=$(cat /etc/secrets/database-credentials/password)}"
+export PGHOST="${PGHOST:=$(cat /etc/secrets/database-credentials/host)}"
 
 echo "PGUSER=$PGUSER"
 echo "MIGRATION_STATS_SCHEMA=$MIGRATION_STATS_SCHEMA"
