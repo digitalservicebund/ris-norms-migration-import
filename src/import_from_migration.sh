@@ -7,7 +7,6 @@ export PGPASSWORD="${PGPASSWORD:=$(cat /etc/secrets/database-credentials/passwor
 export PGHOST="${PGHOST:=$(cat /etc/secrets/database-credentials/host)}"
 
 echo "PGUSER=$PGUSER"
-echo "PGHOST=$PGHOST"
 echo "MIGRATION_STATS_SCHEMA=$MIGRATION_STATS_SCHEMA"
 
 # Check if there are any jobs in progress
