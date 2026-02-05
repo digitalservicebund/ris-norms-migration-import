@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: "0 13 * * 3" # Every Wednesday at 13:00 UTC
   # Allow to run this workflow manually
   workflow_dispatch:
 
