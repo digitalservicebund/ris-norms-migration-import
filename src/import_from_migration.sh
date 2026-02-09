@@ -27,10 +27,7 @@ if [ -n "$LATEST_STATS" ]; then
     echo "No jobs in progress and migration needed. Running norms migration job..."
     echo "NORMS_SCHEMA=$NORMS_SCHEMA"
     echo "MIGRATION_SCHEMA=$MIGRATION_SCHEMA"
-    ./keep_alive.sh &
-    KEEP_ALIVE_PID=$!
     psql --echo-all --variable=NORMS_SCHEMA=$NORMS_SCHEMA --variable=MIGRATION_SCHEMA=$MIGRATION_SCHEMA --file=./import_from_migration.sql
-    kill $KEEP_ALIVE_PID
   else
     echo "Migration not needed or jobs in progress. Skipping."
   fi
