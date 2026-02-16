@@ -65,7 +65,7 @@ DO $$
             WITH
                 batch AS (
                     SELECT ldml_xml.id, ldml_xml.content
-                    FROM :MIGRATION_SCHEMA.ldml_xml ldml_xml
+                    FROM migration_norms_nightly.ldml_xml ldml_xml
                         LEFT JOIN ldml_with_errors ON ldml_xml.id = ldml_with_errors.id
                         LEFT JOIN ldml_version_with_errors ON ldml_xml.ldml_version_id = ldml_version_with_errors.id
                     WHERE ldml_with_errors.id IS NULL
@@ -75,7 +75,7 @@ DO $$
                     OFFSET current_offset
                 ),
                  inserted_dokumente AS (
-                     INSERT INTO :NORMS_SCHEMA.dokumente (xml)
+                     INSERT INTO norms.dokumente (xml)
                          SELECT content FROM batch
                          ON CONFLICT DO NOTHING -- ensures duplicates are ignored
                          RETURNING eli_norm_manifestation
