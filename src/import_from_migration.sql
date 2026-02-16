@@ -41,20 +41,15 @@ DELETE FROM :NORMS_SCHEMA.norm_expression WHERE
         );
 
 CREATE TEMP TABLE ldml_with_errors AS
-SELECT ldml_xml_id AS id
+SELECT DISTINCT ldml_xml_id AS id
 FROM :MIGRATION_SCHEMA.ldml_error
 WHERE type != 'schematron warning';
 CREATE INDEX idx_ldml_with_errors ON ldml_with_errors(id);
 
 CREATE TEMP TABLE ldml_version_with_errors AS
-SELECT id
-FROM :MIGRATION_SCHEMA.ldml_version
-WHERE NOT EXISTS (
-     SELECT 1
-     FROM :MIGRATION_SCHEMA.ldml_xml sub_ldml_xml
-     JOIN ldml_with_errors ON sub_ldml_xml.id = ldml_with_errors.id
-     WHERE sub_ldml_xml.ldml_version_id = ldml_version.id
-);
+SELECT DISTINCT ldml_version_id AS id
+FROM :MIGRATION_SCHEMA.ldml_xml
+WHERE id IN (SELECT id FROM ldml_with_errors);
 CREATE INDEX idx_ldml_version_with_errors ON ldml_version_with_errors(id);
 
 -- Insert into dokumente table and track inserted rows
