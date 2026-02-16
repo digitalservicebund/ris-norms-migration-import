@@ -40,26 +40,34 @@ DELETE FROM :NORMS_SCHEMA.norm_expression WHERE
         'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu'
         );
 
+CREATE TEMP TABLE ldml_with_errors AS
+SELECT ldml_xml_id AS id
+FROM :MIGRATION_SCHEMA.ldml_error
+WHERE type != 'schematron warning';
+CREATE INDEX idx_ldml_with_errors ON ldml_with_errors(id);
+
+CREATE TEMP TABLE ldml_version_with_errors AS
+SELECT id
+FROM :MIGRATION_SCHEMA.ldml_version
+WHERE NOT EXISTS (
+     SELECT 1
+     FROM :MIGRATION_SCHEMA.ldml_xml sub_ldml_xml
+     JOIN ldml_with_errors ON sub_ldml_xml.id = ldml_with_errors.id
+     WHERE sub_ldml_xml.ldml_version_id = ldml_version.id
+);
+CREATE INDEX idx_ldml_version_with_errors ON ldml_version_with_errors(id);
+
 -- Insert into dokumente table and track inserted rows
 WITH inserted_dokumente AS (
     INSERT INTO :NORMS_SCHEMA.dokumente (xml)
     SELECT ldml_xml.content
     FROM :MIGRATION_SCHEMA.ldml_xml ldml_xml
-    JOIN :MIGRATION_SCHEMA.ldml_version ldml_version ON ldml_xml.ldml_version_id = ldml_version.id
-    WHERE ldml_xml.id IN (
-        SELECT ldml_xml.id
-        FROM :MIGRATION_SCHEMA.ldml_xml ldml_xml
-        LEFT JOIN :MIGRATION_SCHEMA.ldml_error ldml_error ON ldml_xml.id = ldml_error.ldml_xml_id
-        WHERE (ldml_error.id IS NULL OR ldml_error.type = 'schematron warning')
-        GROUP BY ldml_xml.id
-    )
-    AND NOT EXISTS (
-        SELECT 1
-        FROM :MIGRATION_SCHEMA.ldml_xml sub_ldml_xml
-        JOIN :MIGRATION_SCHEMA.ldml_error sub_error ON sub_ldml_xml.id = sub_error.ldml_xml_id
-        WHERE sub_ldml_xml.ldml_version_id = ldml_version.id
-        AND sub_error.type != 'schematron warning'
-    )
+    LEFT JOIN ldml_with_errors
+        ON ldml_xml.id = ldml_with_errors.id
+    LEFT JOIN ldml_version_with_errors
+        ON ldml_version_id = ldml_version_with_errors.id
+    WHERE ldml_with_errors.id IS NULL
+    AND ldml_version_with_errors.id IS NULL
     ON CONFLICT DO NOTHING -- ensures duplicates are ignored
     RETURNING eli_norm_manifestation
 )
