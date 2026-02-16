@@ -40,34 +40,57 @@ DELETE FROM :NORMS_SCHEMA.norm_expression WHERE
         'eli/bund/bgbl-1/1002/1/1002-01-01/1/deu'
         );
 
-CREATE TEMP TABLE ldml_with_errors AS
+CREATE TEMP TABLE ldml_with_errors ON COMMIT PRESERVE ROWS AS
 SELECT DISTINCT ldml_xml_id AS id
 FROM :MIGRATION_SCHEMA.ldml_error
 WHERE type != 'schematron warning';
 CREATE INDEX idx_ldml_with_errors ON ldml_with_errors(id);
 
-CREATE TEMP TABLE ldml_version_with_errors AS
+CREATE TEMP TABLE ldml_version_with_errors ON COMMIT PRESERVE ROWS AS
 SELECT DISTINCT ldml_version_id AS id
 FROM :MIGRATION_SCHEMA.ldml_xml
 WHERE id IN (SELECT id FROM ldml_with_errors);
 CREATE INDEX idx_ldml_version_with_errors ON ldml_version_with_errors(id);
 
--- Insert into dokumente table and track inserted rows
-WITH inserted_dokumente AS (
-    INSERT INTO :NORMS_SCHEMA.dokumente (xml)
-    SELECT ldml_xml.content
-    FROM :MIGRATION_SCHEMA.ldml_xml ldml_xml
-    LEFT JOIN ldml_with_errors
-        ON ldml_xml.id = ldml_with_errors.id
-    LEFT JOIN ldml_version_with_errors
-        ON ldml_version_id = ldml_version_with_errors.id
-    WHERE ldml_with_errors.id IS NULL
-    AND ldml_version_with_errors.id IS NULL
-    ON CONFLICT DO NOTHING -- ensures duplicates are ignored
-    RETURNING eli_norm_manifestation
-)
--- Create and populate temp table using the CTE from the insert, needed because of two separate statements + subquery in the 2nd one
-SELECT eli_norm_manifestation INTO TEMP TABLE inserted_docs FROM inserted_dokumente;
+CREATE TEMP TABLE IF NOT EXISTS inserted_docs (eli_norm_manifestation TEXT) ON COMMIT PRESERVE ROWS;
+
+-- Batch the inserts of the dokumente to keep the run time of one sql-statement below 1h. Otherwise we run into timeouts
+DO $$
+    DECLARE
+        batch_size INT := 10000;
+        rows_processed INT;
+        current_offset INT := 0;
+    BEGIN
+        LOOP
+            WITH
+                batch AS (
+                    SELECT ldml_xml.id, ldml_xml.content
+                    FROM :MIGRATION_SCHEMA.ldml_xml ldml_xml
+                        LEFT JOIN ldml_with_errors ON ldml_xml.id = ldml_with_errors.id
+                        LEFT JOIN ldml_version_with_errors ON ldml_xml.ldml_version_id = ldml_version_with_errors.id
+                    WHERE ldml_with_errors.id IS NULL
+                      AND ldml_version_with_errors.id IS NULL
+                    ORDER BY ldml_xml.id
+                    LIMIT batch_size
+                    OFFSET current_offset
+                ),
+                 inserted_dokumente AS (
+                     INSERT INTO :NORMS_SCHEMA.dokumente (xml)
+                         SELECT content FROM batch
+                         ON CONFLICT DO NOTHING -- ensures duplicates are ignored
+                         RETURNING eli_norm_manifestation
+                 )
+            INSERT INTO inserted_docs (eli_norm_manifestation)
+            SELECT eli_norm_manifestation FROM inserted_dokumente;
+
+            GET DIAGNOSTICS rows_processed = ROW_COUNT;
+            EXIT WHEN rows_processed = 0;
+
+            current_offset := current_offset + batch_size;
+
+            RAISE NOTICE 'Processed % documents...', current_offset;
+        END LOOP;
+    END $$;
 
 -- Import Binary files
 WITH inserted_binary_files AS (
@@ -96,5 +119,7 @@ SET publish_state = 'QUEUED_FOR_PUBLISH'
 WHERE nm.eli_norm_manifestation IN (SELECT eli_norm_manifestation FROM inserted_docs)
   AND nm.publish_state = 'UNPUBLISHED';
 
--- Drop the created temporary table (although they are automatically dropped at end of session, it is good practice)
+-- Drop the created temporary tables (although they are automatically dropped at end of session, it is good practice)
 DROP TABLE inserted_docs;
+DROP TABLE ldml_with_errors;
+DROP TABLE ldml_version_with_errors;
