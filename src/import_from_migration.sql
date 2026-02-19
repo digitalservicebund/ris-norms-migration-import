@@ -88,7 +88,7 @@ DO $$
 
             current_offset := current_offset + batch_size;
 
-            RAISE NOTICE 'Processed % documents...', current_offset;
+            RAISE INFO 'Processed % documents...', current_offset;
         END LOOP;
     END $$;
 
