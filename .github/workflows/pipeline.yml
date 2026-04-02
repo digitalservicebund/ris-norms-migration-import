@@ -22,7 +22,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Build Docker Image
         run: |
           docker build -t ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_IMAGE_NAME }}:${{ env.CONTAINER_IMAGE_VERSION }} .
@@ -88,7 +88,7 @@ jobs:
     outputs:
       version: ${{ steps.set-version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Build Docker Image
         run: |
           docker build -t ${{ env.CONTAINER_IMAGE_NAME }}:${{ env.CONTAINER_IMAGE_VERSION }} .
@@ -227,7 +227,7 @@ jobs:
     environment: staging
     steps:
       - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@050e50ee533ead763aa61d2e511ae5ae9e769593 # auth-token branch # Use the auth-token branch for STACKIT
+        uses: digitalservicebund/argocd-deploy@6033da861398e0d7fcffe1b195f8d58f10b62c4e # auth-token branch # Use the auth-token branch for STACKIT
         with:
           environment: staging-stackit
           version: ${{ github.sha }}
@@ -252,7 +252,7 @@ jobs:
     environment: uat
     steps:
       - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@050e50ee533ead763aa61d2e511ae5ae9e769593 # auth-token branch # Use the auth-token branch for STACKIT
+        uses: digitalservicebund/argocd-deploy@6033da861398e0d7fcffe1b195f8d58f10b62c4e # auth-token branch # Use the auth-token branch for STACKIT
         with:
           environment: uat-stackit
           version: ${{ github.sha }}
@@ -277,7 +277,7 @@ jobs:
     environment: production
     steps:
       - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@050e50ee533ead763aa61d2e511ae5ae9e769593 # auth-token branch # Use the auth-token branch for STACKIT
+        uses: digitalservicebund/argocd-deploy@6033da861398e0d7fcffe1b195f8d58f10b62c4e # auth-token branch # Use the auth-token branch for STACKIT
         with:
           environment: production-stackit
           version: ${{ github.sha }}
