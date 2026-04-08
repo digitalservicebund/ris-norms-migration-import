@@ -126,7 +126,7 @@ jobs:
       - id: set-version
         run: echo "version=$CONTAINER_IMAGE_VERSION" >> $GITHUB_OUTPUT
       - name: Create SBOM
-        uses: digitalservicebund/create-sbom@9535ef832c2895b44b7266f84e16ad7598d1ead9
+        uses: digitalservicebund/create-sbom@ff8348b5648266dccbdd00310c84950ad48d0c1b
         with:
           image_name: ${{ env.CONTAINER_IMAGE_NAME }}:${{ env.CONTAINER_IMAGE_VERSION }}
       - name: Send status to Slack
@@ -146,7 +146,7 @@ jobs:
     steps:
       - uses: chainguard-dev/actions/setup-gitsign@98ff6d6ff2a7802d68c12d10fdfc98c5446b3f7b
       - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@faa88406a1d6afa918aad127b19735c6e54d7fb1 # v1.0.0
+        uses: digitalservicebund/argocd-deploy@f641e07b623c4544d048a302cc16fcb18e7bf190 # v1.0.0
         with:
           environment: staging
           version: ${{ github.sha }}
@@ -174,7 +174,7 @@ jobs:
     steps:
       - uses: chainguard-dev/actions/setup-gitsign@98ff6d6ff2a7802d68c12d10fdfc98c5446b3f7b
       - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@faa88406a1d6afa918aad127b19735c6e54d7fb1 # v1.0.0
+        uses: digitalservicebund/argocd-deploy@f641e07b623c4544d048a302cc16fcb18e7bf190 # v1.0.0
         with:
           environment: uat
           version: ${{ github.sha }}
@@ -202,7 +202,7 @@ jobs:
     steps:
       - uses: chainguard-dev/actions/setup-gitsign@98ff6d6ff2a7802d68c12d10fdfc98c5446b3f7b
       - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@faa88406a1d6afa918aad127b19735c6e54d7fb1 # v1.0.0
+        uses: digitalservicebund/argocd-deploy@f641e07b623c4544d048a302cc16fcb18e7bf190 # v1.0.0
         with:
           environment: production
           version: ${{ github.sha }}
