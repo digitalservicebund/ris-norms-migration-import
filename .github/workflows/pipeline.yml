@@ -48,7 +48,7 @@ jobs:
             exit 0
           fi
       - name: Upload Trivy image scan results to GitHub Security tab (on 'main' only)
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
         if: ${{ always() && github.ref == 'refs/heads/main' }} # Bypass non-zero exit code..
         with:
           sarif_file: "trivy-results.sarif"
@@ -66,7 +66,7 @@ jobs:
           format: "cosign-vuln"
           output: "vuln.json"
       - name: Upload cosign vulnerability scan record
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: "vuln.json"
           path: "vuln.json"
@@ -118,7 +118,7 @@ jobs:
       - name: Sign the published Docker image
         run: cosign sign --yes ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_IMAGE_NAME }}:${{ env.CONTAINER_IMAGE_VERSION }}
       - name: Download cosign vulnerability scan record
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: "vuln.json"
       - name: Attest vulnerability scan
