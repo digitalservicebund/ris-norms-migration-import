@@ -140,93 +140,6 @@ jobs:
 
   deploy-staging:
     runs-on: ubuntu-latest
-    concurrency: deployment
-    needs:
-      - build-and-push-image
-    environment: staging
-    permissions:
-      id-token: write # Enable OIDC for gitsign
-    steps:
-      - uses: chainguard-dev/actions/setup-gitsign@98ff6d6ff2a7802d68c12d10fdfc98c5446b3f7b
-      - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@f641e07b623c4544d048a302cc16fcb18e7bf190 # v1.0.0
-        with:
-          environment: staging
-          version: ${{ github.sha }}
-          deploying_repo: ris-norms-migration-import
-          infra_repo: ris-norms-infra
-          github_app_private_key: ${{ secrets.GITOPS_NEURIS_APP_PRIVATE_KEY }}
-          github_app_id: ${{ secrets.GITOPS_NEURIS_APP_ID }}
-          app: ris-norms-staging
-          argocd_pipeline_password: ${{ secrets.ARGOCD_PIPELINE_PASSWORD }}
-          argocd_server: ${{ secrets.ARGOCD_SERVER }}
-      - name: Send status to Slack
-        uses: digitalservicebund/notify-on-failure-gha@671832f192aee0a068fd92b2f6deb975df794a84 # v1.6.1
-        if: ${{ failure() }}
-        with:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
-
-  deploy-uat:
-    runs-on: ubuntu-latest
-    concurrency: deployment
-    needs:
-      - deploy-staging
-    environment: staging
-    permissions:
-      id-token: write # Enable OIDC for gitsign
-    steps:
-      - uses: chainguard-dev/actions/setup-gitsign@98ff6d6ff2a7802d68c12d10fdfc98c5446b3f7b
-      - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@f641e07b623c4544d048a302cc16fcb18e7bf190 # v1.0.0
-        with:
-          environment: uat
-          version: ${{ github.sha }}
-          deploying_repo: ris-norms-migration-import
-          infra_repo: ris-norms-infra
-          github_app_private_key: ${{ secrets.GITOPS_NEURIS_APP_PRIVATE_KEY }}
-          github_app_id: ${{ secrets.GITOPS_NEURIS_APP_ID }}
-          app: ris-norms-uat
-          argocd_pipeline_password: ${{ secrets.ARGOCD_PIPELINE_PASSWORD }}
-          argocd_server: ${{ secrets.ARGOCD_SERVER }}
-      - name: Send status to Slack
-        uses: digitalservicebund/notify-on-failure-gha@671832f192aee0a068fd92b2f6deb975df794a84 # v1.6.1
-        if: ${{ failure() }}
-        with:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
-
-  deploy-production:
-    runs-on: ubuntu-latest
-    concurrency: deployment
-    needs:
-      - deploy-uat
-    environment: production
-    permissions:
-      id-token: write # Enable OIDC for gitsign
-    steps:
-      - uses: chainguard-dev/actions/setup-gitsign@98ff6d6ff2a7802d68c12d10fdfc98c5446b3f7b
-      - name: Deploy new images
-        uses: digitalservicebund/argocd-deploy@f641e07b623c4544d048a302cc16fcb18e7bf190 # v1.0.0
-        with:
-          environment: production
-          version: ${{ github.sha }}
-          deploying_repo: ris-norms-migration-import
-          infra_repo: ris-norms-infra
-          github_app_private_key: ${{ secrets.GITOPS_NEURIS_APP_PRIVATE_KEY }}
-          github_app_id: ${{ secrets.GITOPS_NEURIS_APP_ID }}
-          app: ris-norms-production
-          argocd_pipeline_password: ${{ secrets.ARGOCD_PIPELINE_PASSWORD }}
-          argocd_server: ${{ secrets.ARGOCD_SERVER }}
-      - name: Send status to Slack
-        uses: digitalservicebund/notify-on-failure-gha@671832f192aee0a068fd92b2f6deb975df794a84 # v1.6.1
-        if: ${{ failure() }}
-        with:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
-
-  deploy-staging-stackit:
-    runs-on: ubuntu-latest
     needs:
       - build-and-push-image
     concurrency: deployment
@@ -251,10 +164,10 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
 
-  deploy-uat-stackit:
+  deploy-uat:
     runs-on: ubuntu-latest
     needs:
-      - deploy-staging-stackit
+      - deploy-staging
     concurrency: deployment
     environment: uat
     steps:
@@ -277,10 +190,10 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
 
-  deploy-production-stackit:
+  deploy-production:
     runs-on: ubuntu-latest
     needs:
-      - deploy-uat-stackit
+      - deploy-uat
     concurrency: deployment
     environment: production
     steps:
