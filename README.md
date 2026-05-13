@@ -37,6 +37,18 @@ The hooks are supposed to help you to:
 - write [conventional commit messages](https://chris.beams.io/posts/git-commit/)
 - not accidentally push [secrets and sensitive information](https://thoughtworks.github.io/talisman/)
 
+## Running locally
+Prerequisites:
+- running [`ris-norms` application](https://github.com/digitalservicebund/ris-norms)
+- ran [`ris-norms-migration`](https://github.com/digitalservicebund/ris-norms-migration)
+- both applications use the same database
+
+Create a `.env` file, based on `.env.example`, load it into your shell, and then run the script:
+```bash
+cd src/
+./import_from_migration.sh
+```
+
 ## Container image
 
 Container images running the application are automatically published by the pipeline to
