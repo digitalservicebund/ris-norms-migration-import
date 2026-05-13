@@ -1,7 +1,7 @@
 FROM  cgr.dev/chainguard/wolfi-base:latest
 
 RUN apk update \
-    && apk add --no-cache --update-cache postgresql-16-client;
+    && apk add --no-cache --update-cache postgresql-17-client;
 
 COPY src/import_from_migration.sql /import_from_migration.sql
 COPY --chmod=555 src/import_from_migration.sh /import_from_migration.sh
