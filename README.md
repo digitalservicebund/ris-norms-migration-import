@@ -117,8 +117,8 @@ running a container rejected if a scan is not current.
 
 ## Slack notifications
 
-Opt in to CI posting notifications for failing jobs to a particular Slack channel by setting a repository secret
-with the name `SLACK_WEBHOOK_URL`, containing a url for [Incoming Webhooks](https://api.slack.com/messaging/webhooks).
+Opt in to CI posting notifications for failing jobs to a particular Slack channel by setting a repository variable
+with the name `SLACK_CHANNEL_ID`.
 
 ## Contributing
 
