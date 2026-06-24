@@ -127,7 +127,7 @@ jobs:
       - id: set-version
         run: echo "version=$CONTAINER_IMAGE_VERSION" >> $GITHUB_OUTPUT
       - name: Create SBOM
-        uses: digitalservicebund/create-sbom@ff8348b5648266dccbdd00310c84950ad48d0c1b
+        uses: digitalservicebund/create-sbom@e993467f028613ae3d76f5225a32858dde193fcc
         with:
           image_name: ${{ env.CONTAINER_IMAGE_NAME }}:${{ env.CONTAINER_IMAGE_VERSION }}
       - name: Send status to Slack
